@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, SafeAreaView,
-    TouchableOpacity, Button, Modal, TextInput } from "react-native";
+    TouchableOpacity, Modal, TextInput, StatusBar } from "react-native";
 import { useState } from "react";
 
 const TeamType = {
@@ -7,6 +7,14 @@ const TeamType = {
     Right: 2
 };
 Object.freeze(TeamType);
+
+function PrettyButton({style, text, onPress}) {
+    return (
+        <TouchableOpacity style={style} onPress={onPress}>
+            <Text style={[styles.text, styles.buttonText]}>{text}</Text>
+        </TouchableOpacity>
+    );
+}
 
 function Team({side, onButtonPress, matchData}) {
     return (
@@ -20,17 +28,16 @@ function Team({side, onButtonPress, matchData}) {
             <Text style={[styles.text, styles.teamScoreText]}>
                 {side === TeamType.Left ? matchData.leftTeamScore : matchData.rightTeamScore}
             </Text>
-            <TouchableOpacity style={styles.button} onPress={onButtonPress}>
-                <Text style={[styles.text, styles.buttonText]}>Score Up</Text>
-            </TouchableOpacity>
+            <PrettyButton style={styles.scoreUpButton} text={"Score Up"} onPress={onButtonPress} />
         </View>
     );
 }
 
-function Configure({modalVisible, onEnter, upToInput, setUpToInput}) {
+function Configure({modalVisible, onEnter, upToInput, setUpToInput, onReset}) {
     return (
         <Modal animationType={"fade"} visible={modalVisible} onRequestClose={onEnter}>
             <View style={styles.modalView}>
+                <PrettyButton style={styles.resetButton} text={"Reset"} onPress={onReset} />
                 <Text style={styles.text}>Game lasts until:</Text>
                 <TextInput
                     style={styles.input}
@@ -39,7 +46,7 @@ function Configure({modalVisible, onEnter, upToInput, setUpToInput}) {
                     placeholder="Something like 15, 20 or 25"
                     onChangeText={setUpToInput}
                 />
-                <Button title={"Enter"} onPress={onEnter} />
+                <PrettyButton style={styles.normalButton} text={"Enter"} onPress={onEnter} />
             </View>
         </Modal>
     );
@@ -54,7 +61,7 @@ function About({modalVisible, onOkay}) {
                     <Text style={styles.text}>Simon Mărăcine</Text>
                     <Text style={styles.text}>:D</Text>
                 </View>
-                <Button title={"Okay"} onPress={onOkay} />
+                <PrettyButton style={styles.normalButton} text={"Okay"} onPress={onOkay} />
             </View>
         </Modal>
     );
@@ -201,6 +208,18 @@ export default function App() {
         setConfigureModalVisible(!configureModalVisible);
     };
 
+    const onReset = () => {
+        setMatchData({
+            ...matchData,
+            leftTeamScore: 0,
+            rightTeamScore: 0,
+            turns: 0,
+            ended: false
+        });
+        setHistory([]);
+        setConfigureModalVisible(!configureModalVisible);
+    };
+
     const onAboutOkay = () => {
         setAboutModalVisible(!aboutModalVisible);
     };
@@ -212,6 +231,7 @@ export default function App() {
                 onEnter={onConfigureEnter}
                 upToInput={upToInput}
                 setUpToInput={setUpToInput}
+                onReset={onReset}
             />
 
             <About modalVisible={aboutModalVisible} onOkay={onAboutOkay} />
@@ -229,11 +249,11 @@ export default function App() {
             <View style={styles.bottomView}>
                 <View style={styles.bottomContentView}>
                     <Text style={styles.text}>{"Turns: " + matchData.turns}</Text>
-                    <Button title={"Undo"} onPress={onUndo} />
+                    <PrettyButton style={styles.normalButton} text={"Undo"} onPress={onUndo} />
                 </View>
                 <View style={styles.bottomContentView}>
                     <Text style={styles.text}>{"Up to: " + matchData.upTo}</Text>
-                    <Button title={"Configure"} onPress={onConfigure} />
+                    <PrettyButton style={styles.normalButton} text={"Configure"} onPress={onConfigure} />
                 </View>
             </View>
         </SafeAreaView>
@@ -244,7 +264,8 @@ const styles = StyleSheet.create({
     mainView: {
         flex: 1,
         backgroundColor: "rgb(21, 21, 21)",
-        justifyContent: "center"
+        justifyContent: "center",
+        marginTop: StatusBar.currentHeight
     },
     contentView: {
         flex: 3,
@@ -284,14 +305,14 @@ const styles = StyleSheet.create({
         fontSize: 40
     },
     teamNameText: {
-        fontSize: 50
+        fontSize: 45
     },
     teamScoreText: {
-        fontSize: 95,
+        fontSize: 100,
         textAlign: "center"
     },
     buttonText: {
-        fontSize: 40
+        fontSize: 30
     },
     title: {
         fontSize: 60,
@@ -299,10 +320,21 @@ const styles = StyleSheet.create({
         marginBottom: 60,
         textAlign: "center"
     },
-    button: {
+    scoreUpButton: {
         width: "100%",
         backgroundColor: "rgb(15, 10, 220)",
-        padding: 6,
+        padding: 10,
+        borderRadius: 15
+    },
+    resetButton: {
+        backgroundColor: "rgb(75, 70, 255)",
+        padding: 8,
+        borderRadius: 15,
+        marginBottom: 40
+    },
+    normalButton: {
+        backgroundColor: "rgb(75, 70, 255)",
+        padding: 8,
         borderRadius: 15
     },
     input: {
