@@ -53,7 +53,7 @@ function Configure({modalVisible, onEnter, upToInput, setUpToInput, onReset}) {
     return (
         <Modal animationType={"fade"} visible={modalVisible} onRequestClose={onEnter}>
             <View style={styles.modalView}>
-                <PrettyButton style={styles.resetButton} text={"Reset"} onPress={onReset} />
+                <PrettyButton style={styles.resetButton} text={"Reset Match"} onPress={onReset} />
                 <Text style={styles.text}>Game lasts until:</Text>
                 <TextInput
                     style={styles.input}
@@ -94,7 +94,7 @@ export default function App() {
         leftTeamScore: 0,
         rightTeamScore: 0,
         turns: 0,
-        upTo: 15,
+        upTo: 25,
         ended: false
     });
     const [history, setHistory] = useState([]);
