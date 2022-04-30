@@ -8,6 +8,22 @@ const TeamType = {
 };
 Object.freeze(TeamType);
 
+function winnerStyling(side, matchData) {
+    if (side === TeamType.Left) {
+        if (matchData.leftTeamScore === matchData.upTo) {
+            return styles.yellowTeamNameText;
+        } else {
+            return {};
+        }
+    } else {
+        if (matchData.rightTeamScore === matchData.upTo) {
+            return styles.yellowTeamNameText;
+        } else {
+            return {};
+        }
+    }
+}
+
 function PrettyButton({style, text, onPress}) {
     return (
         <TouchableOpacity style={style} onPress={onPress}>
@@ -20,10 +36,10 @@ function Team({side, onButtonPress, matchData}) {
     return (
         <View style={styles.teamView}>
             <View style={styles.teamNameView}>
-                <Text style={[styles.text, styles.teamNameText]}>
+                <Text style={[styles.text, styles.teamNameText, winnerStyling(side, matchData)]}>
                     {side === TeamType.Left ? "Left" : "Right"}
                 </Text>
-                <Text style={[styles.text, styles.teamNameText]}>Team</Text>
+                <Text style={[styles.text, styles.teamNameText, winnerStyling(side, matchData)]}>Team</Text>
             </View>
             <Text style={[styles.text, styles.teamScoreText]}>
                 {side === TeamType.Left ? matchData.leftTeamScore : matchData.rightTeamScore}
@@ -81,13 +97,9 @@ export default function App() {
         upTo: 15,
         ended: false
     });
-
     const [history, setHistory] = useState([]);
-
     const [configureModalVisible, setConfigureModalVisible] = useState(false);
-
     const [upToInput, setUpToInput] = useState('');
-
     const [aboutModalVisible, setAboutModalVisible] = useState(false);
 
     const onLeftTeamButtonPress = () => {
@@ -121,11 +133,6 @@ export default function App() {
         }
 
         const newScore = matchData.rightTeamScore + 1;
-        setMatchData({
-            ...matchData,
-            rightTeamScore: newScore,
-            turns: matchData.turns + 1
-        });
 
         if (newScore === matchData.upTo) {
             setMatchData({
@@ -134,13 +141,19 @@ export default function App() {
                 turns: matchData.turns + 1,
                 ended: true
             });
+        } else {
+            setMatchData({
+                ...matchData,
+                rightTeamScore: newScore,
+                turns: matchData.turns + 1
+            });
         }
 
         setHistory([...history, TeamType.Right]);
     };
 
     const onUndo = () => {
-        if (history.length == 0) {
+        if (history.length === 0) {
             return;
         }
 
@@ -306,6 +319,9 @@ const styles = StyleSheet.create({
     },
     teamNameText: {
         fontSize: 45
+    },
+    yellowTeamNameText: {
+        color: "yellow"
     },
     teamScoreText: {
         fontSize: 100,
